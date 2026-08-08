@@ -100,7 +100,9 @@ two measurements is what the widget does to the page.
 Comparing a store against itself removes the selection problem entirely.
 
 The ablation covers **56 distinct stores**: 16 German, 20 international, 20 fresh. The
-last two samples were measured twice, which is why 56 stores yield 95 store-runs.
+last two samples were measured twice, so 56 stores give 96 store-runs. One store in the
+second fresh run lost both of its page pairs to the validity rule and contributes
+nothing, which is why the tables below count **95**.
 
 | run | sample | page pairs | stores | nodes removed | out of | share | median per store |
 |---|---|---|---|---|---|---|---|
