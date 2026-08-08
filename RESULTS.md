@@ -133,7 +133,10 @@ Supporting counts:
   stores came out worse in run 1 and only 3 of those again in run 2; in the fresh
   sample 3 in run 1 and 4 in run 2 — 5 distinct stores, only 2 of them both times
 - **3 pairs of 189** were discarded as invalid renders, 1.6%, all three in the
-  fresh sample
+  fresh sample. The chain from top to bottom: **192** pairs attempted (56 stores ×
+  2 pages, two of the three samples measured twice), **3** lost when one side hit the
+  40 s navigation timeout, **189** measured, **3** discarded by the rule, **186**
+  analysed
 
 Run-to-run reproducibility, measured on the samples that were run twice and after the
 invalid pairs were excluded: **18 of 20** stores in the English sample and **17 of 19**

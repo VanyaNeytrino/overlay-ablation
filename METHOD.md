@@ -110,6 +110,19 @@ The thresholds were written down before checking which stores they would remove.
 They remove **3 pairs of 189 (1.6%)**. Implemented in `scripts/aggregate.mjs`,
 function `invalidReason`.
 
+Full accounting for this study, so that the denominator can be reconstructed:
+
+| | pairs |
+|---|---|
+| attempted (56 stores × 2 pages, two samples measured twice) | 192 |
+| lost — one side hit the 40 s navigation timeout, nothing to compare against | 3 |
+| measured (both sides succeeded) | **189** |
+| discarded by the validity rule above | 3 |
+| analysed | **186** |
+
+`aggregate.mjs` reports the first three lines as `Pairs usable`, `Pairs dropped
+(invalid)` and `Pairs incomplete`, so the same breakdown falls out of any re-run.
+
 ## How results are summarised
 
 Two figures, always both:
