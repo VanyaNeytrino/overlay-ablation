@@ -107,7 +107,7 @@ A pair is discarded when either holds:
 
 Both signal a page that failed to render rather than a page the widget repaired.
 The thresholds were written down before checking which stores they would remove.
-They remove **3 pairs of 201 (1.5%)**. Implemented in `scripts/aggregate.mjs`,
+They remove **3 pairs of 189 (1.6%)**. Implemented in `scripts/aggregate.mjs`,
 function `invalidReason`.
 
 ## How results are summarised

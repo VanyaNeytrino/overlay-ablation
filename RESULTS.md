@@ -99,6 +99,9 @@ two measurements is what the widget does to the page.
 
 Comparing a store against itself removes the selection problem entirely.
 
+The ablation covers **56 distinct stores**: 16 German, 20 international, 20 fresh. The
+last two samples were measured twice, which is why 56 stores yield 95 store-runs.
+
 | run | sample | page pairs | stores | nodes removed | out of | share | median per store |
 |---|---|---|---|---|---|---|---|
 | German | 16 stores, .de pool | 32 | 16 | 11 | 1,239 | 0.9% | 0.0% |
@@ -126,8 +129,10 @@ Supporting counts:
 - per-run share ranges from **0.9% to 5.0%**
 - **52 of 95** store-run observations showed no change at all — 55%
 - in every run, some stores came out *worse* with the widget enabled than with it
-  blocked (3, 5, 3, 3, 4 stores respectively)
-- **3 pairs of 201** were discarded as invalid renders, 1.5%, all three in the
+  blocked (3, 5, 3, 3, 4 stores respectively). Mostly noise: in the English sample 5
+  stores came out worse in run 1 and only 3 of those again in run 2; in the fresh
+  sample 3 in run 1 and 4 in run 2 — 5 distinct stores, only 2 of them both times
+- **3 pairs of 189** were discarded as invalid renders, 1.6%, all three in the
   fresh sample
 
 Run-to-run reproducibility, measured on the samples that were run twice and after the
@@ -161,7 +166,7 @@ contributed +98 nodes to a run whose total was +116 — that one broken render w
 most of the run. `aggregate.mjs` now drops a pair when one side has ≤ 3 violation
 nodes while the other has ≥ 15, or when the two sides disagree about whether the
 page had a `<title>` at all. The thresholds were written down before checking which
-stores they would remove. They remove 3 pairs of 201.
+stores they would remove. They remove 3 pairs of 189.
 
 Neither failure mode was invented for this write-up; both were found by re-running
 measurements that had already been recorded as results.
