@@ -1,0 +1,12 @@
+{
+  "name": "overlay-ablation",
+  "version": "1.0.0",
+  "description": "Ablation measurement of what accessibility-overlay widgets change in Shopify storefront markup",
+  "type": "module",
+  "license": "MIT",
+  "author": "Ivan Ytsenko",
+  "dependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "playwright": "1.62.1"
+  }
+}

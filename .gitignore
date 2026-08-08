@@ -1,0 +1,6 @@
+node_modules/
+*.jsonl
+*.csv
+!data/*.csv
+urls.txt
+results*

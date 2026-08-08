@@ -1,0 +1,6 @@
+run,sample,page_pairs,pairs_excluded_broken_render,stores,nodes_widget_on,nodes_widget_off,nodes_removed,share_removed_pct,median_per_store_pct,stores_no_change,stores_worse
+german,"16 stores, .de sample",32,0,16,1228,1239,11,0.9,0.0,9,3
+english-run1,"20 stores, international sample",39,0,20,1941,2028,87,4.3,0.0,11,5
+english-run2,"same 20 stores, repeat",39,0,20,1926,2028,102,5.0,0.0,13,3
+fresh-run1,"20 previously unmeasured stores",39,1,20,1386,1426,40,2.8,0.0,9,3
+fresh-run2,"same 20 stores, repeat",37,2,19,1281,1299,18,1.4,0.0,10,4
