@@ -65,9 +65,9 @@ The longer settle in ablation exists because an overlay needs time to initialise
 rewrite the DOM. Measuring before it has run would guarantee the answer.
 
 **The settle delay must be identical on both sides of a pair.** This is not a detail.
-See "Lazy loading" in [RESULTS.md](RESULTS.md#what-was-thrown-away-and-why) — a
-mismatched delay produced a 54% apparent improvement that was entirely an artifact
-of images arriving late.
+See "Lazy loading" in [RESULTS.md](RESULTS.md#what-was-thrown-away-and-why): the same
+storefront measured 46 violation nodes at 5 s and 21 at 20 s, a 54% swing produced
+entirely by the site's own lazy-loading finishing between the two.
 
 In the survey, a 30 s timeout lost 98 of 466 URLs. Retrying the failures at 75 s
 recovered 94, bringing completion to 462 of 466 (99.1%). Sites that time out are not

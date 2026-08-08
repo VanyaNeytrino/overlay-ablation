@@ -58,10 +58,10 @@ same 20 stores gave 4.3% and 5.0% on consecutive runs.
 
 Two mistakes are easy to make and both flatter the widget:
 
-- **Unequal settle delays.** A longer wait on the widget-enabled side lets more
-  lazy-loaded images arrive, and images that have not loaded cannot be counted as
-  missing alt text. One store appeared to improve by 54% for this reason alone. At
-  equal delays it was 46 nodes against 46.
+- **Unequal settle delays.** A storefront's own lazy-loading is still running early
+  on, and its placeholders count as images with no alt text. One store measured 46
+  nodes at a 5 s delay and 21 at 20 s — a 54% "improvement" produced entirely by
+  waiting longer. At equal delays, widget on against widget blocked, it was 46 and 46.
 - **Pages that did not render.** A blank page returns a handful of nodes instead of
   dozens, and the pair reports a huge effect. One such pair contributed +98 nodes to
   a run whose total was +116. `aggregate.mjs` drops these; the rule is in
