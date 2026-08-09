@@ -4,11 +4,11 @@ A measurement of what accessibility-overlay widgets do to the markup of Shopify
 storefronts, using an ablation design: the same page, measured twice, seconds apart,
 with the widget's script allowed and then blocked.
 
-**Median change across stores: 0.0%. Reproduced in all five runs, across three
+**Median change across stores: 0.0%. Reproduced in all six runs, across three
 independently drawn samples.**
 
-Node-weighted across all 186 page pairs the figure is 3.2%, with individual runs
-ranging from 0.9% to 5.0%. Those two numbers answer different questions and
+Node-weighted across all 179 page pairs the figure is 3.5%, with individual runs
+ranging from −0.3% to 5.5%. Those two numbers answer different questions and
 [RESULTS.md](RESULTS.md) reports both.
 
 This measures **one thing only**: whether the source markup contains fewer WCAG
@@ -54,10 +54,16 @@ node scripts/aggregate.mjs run1.jsonl --label="run 1"
 ```
 
 Run it at least twice on the same sample before believing a number. On this data the
-same 20 stores gave 4.3% and 5.0% on consecutive runs.
+same sample gave 5.5% and 5.2% on consecutive runs.
 
-Two mistakes are easy to make and both flatter the widget:
+Three mistakes are easy to make and all three flatter the widget:
 
+- **Not checking that the widget was switched off.** The block matches request URLs
+  against a host list. Ours said `accessiblyapp.com`; the vendor serves from
+  `cdn.accessibly.app`. Thirty pairs were the same page measured twice, and because
+  they produced differences near zero the bug propped the conclusion up instead of
+  breaking it. Both sides now count vendor requests and `aggregate.mjs` discards a
+  pair where nothing was blocked.
 - **Unequal settle delays.** A storefront's own lazy-loading is still running early
   on, and its placeholders count as images with no alt text. One store measured 46
   nodes at a 5 s delay and 21 at 20 s — a 54% "improvement" produced entirely by

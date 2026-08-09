@@ -29,7 +29,7 @@ const LOCALE = getFlag('locale', 'de-DE');
 
 const OVERLAY_HOSTS = [
   'acsbapp.com', 'accessibe.com', 'userway.org', 'equalweb.com', 'nagich.com',
-  'nagich.co.il', 'audioeye.com', 'accessiblyapp.com', 'accessibilityspark.com',
+  'nagich.co.il', 'audioeye.com', 'accessiblyapp.com', 'accessibly.app', 'accessibilityspark.com',
   'maxaccess.io', 'adally.com', 'accessiway.com',
 ];
 
@@ -67,13 +67,21 @@ async function measure(browser, url, blockOverlay) {
     locale: LOCALE,
     extraHTTPHeaders: { 'Accept-Language': LOCALE === 'de-DE' ? 'de-DE,de;q=0.9,en;q=0.8' : 'en-US,en;q=0.9' },
   });
-  const rec = { url, mode: blockOverlay ? 'OFF' : 'ON', ok: false };
+  // vendorHits counts requests to an overlay host: aborted on the OFF side, allowed
+  // on the ON side. Without it the OFF side is an assumption rather than a fact — a
+  // host list that misses the real CDN produces two identical measurements and a
+  // reassuring difference of about zero. That happened here; see METHOD.md.
+  const rec = { url, mode: blockOverlay ? 'OFF' : 'ON', ok: false, vendorHits: 0 };
   try {
     if (blockOverlay) {
       await context.route('**/*', (route) => {
         const u = route.request().url();
-        if (OVERLAY_HOSTS.some((h) => u.includes(h))) return route.abort();
+        if (OVERLAY_HOSTS.some((h) => u.includes(h))) { rec.vendorHits++; return route.abort(); }
         return route.continue();
+      });
+    } else {
+      context.on('request', (r) => {
+        if (OVERLAY_HOSTS.some((h) => r.url().includes(h))) rec.vendorHits++;
       });
     }
     const page = await context.newPage();
@@ -114,9 +122,10 @@ async function main() {
       out.write(JSON.stringify(off) + '\n');
       pairs.push({ url: u, on, off });
       const d = (on.ok && off.ok) ? (off.violationNodes - on.violationNodes) : null;
-      console.log(`${u}\n   ON  ${on.ok ? on.violationNodes : 'ERR ' + on.error} (widget in DOM: ${on.widgetInDom})` +
-        `\n   OFF ${off.ok ? off.violationNodes : 'ERR ' + off.error}` +
-        `\n   nodes removed by overlay: ${d === null ? 'n/a' : d}`);
+      console.log(`${u}\n   ON  ${on.ok ? on.violationNodes : 'ERR ' + on.error} (widget in DOM: ${on.widgetInDom}, vendor requests: ${on.vendorHits})` +
+        `\n   OFF ${off.ok ? off.violationNodes : 'ERR ' + off.error} (vendor requests aborted: ${off.vendorHits})` +
+        `\n   nodes removed by overlay: ${d === null ? 'n/a' : d}` +
+        (off.ok && off.vendorHits === 0 ? '\n   !! nothing was blocked — this pair is not an ablation' : ''));
     }
   };
   await Promise.all(Array.from({ length: CONC }, worker));

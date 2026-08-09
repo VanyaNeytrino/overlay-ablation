@@ -85,8 +85,8 @@ For each URL, in one process, sequentially:
 ```js
 const OVERLAY_HOSTS = [
   'acsbapp.com', 'accessibe.com', 'userway.org', 'equalweb.com', 'nagich.com',
-  'nagich.co.il', 'audioeye.com', 'accessiblyapp.com', 'accessibilityspark.com',
-  'maxaccess.io', 'adally.com', 'accessiway.com',
+  'nagich.co.il', 'audioeye.com', 'accessiblyapp.com', 'accessibly.app',
+  'accessibilityspark.com', 'maxaccess.io', 'adally.com', 'accessiway.com',
 ];
 ```
 
@@ -94,34 +94,52 @@ Sequential rather than parallel, so that both sides see the same network conditi
 the same CDN edge and the same storefront state. A fresh `BrowserContext` per
 measurement, so no cache or storage carries between the two sides.
 
-Each ON record also stores `widgetInDom`: whether the widget's own button or panel is
-present after the settle delay. A pair where the widget never appeared on the ON side
-is not testing anything.
+### Verifying that the widget was actually switched off
+
+This list is the whole experiment, and getting it wrong is silent. `accessibly.app` is
+in it because it was missing: the entry read `accessiblyapp.com` while Accessibly
+serves from `cdn.accessibly.app`, the substring never matched, and 30 pairs across
+every run were the same page measured twice. They produced small differences around
+zero — the study's own conclusion — so the bug propped the result up instead of
+breaking it.
+
+Both sides therefore count requests to an overlay host in `vendorHits`: allowed on the
+ON side, aborted on the OFF side. A pair where the OFF side aborted nothing is not an
+ablation and `aggregate.mjs` discards it.
+
+Do **not** use `widgetInDom` for this. It records whether the widget's button or panel
+is in the DOM, and it is vendor-dependent: for accessiBe, UserWay and AudioEye the
+marker disappears when the script is blocked, but Accessibly's `accessibly-trigger`
+button and `accessibly-config` element are rendered into the page by the Shopify app
+and stay there whether or not the script loads. The field is kept as a diagnostic. The
+request log is what settles the question.
 
 ## Pair validity
 
-A pair is discarded when either holds:
+A pair is discarded when any of these holds:
 
+- the OFF side **aborted no request to any overlay host** — nothing was switched off
 - one side has **≤ 3** violation nodes while the other has **≥ 15**
 - the two sides **disagree on `document-title`** — one of them had no usable `<title>`
 
-Both signal a page that failed to render rather than a page the widget repaired.
-The thresholds were written down before checking which stores they would remove.
-They remove **3 pairs of 189 (1.6%)**. Implemented in `scripts/aggregate.mjs`,
-function `invalidReason`.
+The first is the manipulation check described above. The other two signal a page that
+failed to render rather than a page the widget repaired; their thresholds were written
+down before checking which stores they would remove. Implemented in
+`scripts/aggregate.mjs`, function `invalidReason`.
 
 Full accounting for this study, so that the denominator can be reconstructed:
 
 | | pairs |
 |---|---|
-| attempted (56 stores × 2 pages, two samples measured twice) | 192 |
+| attempted in the five original runs (56 stores × 2 pages, two samples run twice) | 192 |
 | lost — one side hit the 40 s navigation timeout, nothing to compare against | 3 |
-| measured (both sides succeeded) | **189** |
-| discarded by the validity rule above | 3 |
-| analysed | **186** |
+| discarded by the render rules | 3 |
+| excluded — the block never engaged for one vendor | 30 |
+| re-measured with the host list corrected (24 attempted, 1 discarded) | +23 |
+| **analysed** | **179** |
 
-`aggregate.mjs` reports the first three lines as `Pairs usable`, `Pairs dropped
-(invalid)` and `Pairs incomplete`, so the same breakdown falls out of any re-run.
+`aggregate.mjs` reports `Pairs usable`, `Pairs dropped (invalid)` and `Pairs
+incomplete` separately, so the same breakdown falls out of any re-run.
 
 ## How results are summarised
 
@@ -133,7 +151,7 @@ Two figures, always both:
   counts once.
 
 They answer different questions. Quoting one without the other is how a 0.0% result
-gets published as 3.2%, or the reverse.
+gets published as 3.5%, or the reverse.
 
 ## Sampling
 

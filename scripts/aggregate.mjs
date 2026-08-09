@@ -46,6 +46,14 @@ const missingTitle = (rec) => Boolean(rec.byRule && rec.byRule['document-title']
  * "nearly empty" is <= 3 violation nodes, "normal" is >= 15.
  */
 function invalidReason(on, off) {
+  // The manipulation must be verified, not assumed. If the OFF side aborted nothing,
+  // the host list did not match the vendor's real CDN and both sides are the same
+  // page — which yields a difference near zero and looks like a finding.
+  // Older records predate this field; they are checked on the other two rules only.
+  if (off.vendorHits === 0 && on.vendorHits > 0) return 'the OFF side blocked nothing — host list does not match this vendor';
+  if (off.vendorHits === 0 && on.vendorHits === 0 && on.overlays?.length) {
+    return 'no request to any known overlay host in either mode — nothing was switched off';
+  }
   const lo = Math.min(on.violationNodes, off.violationNodes);
   const hi = Math.max(on.violationNodes, off.violationNodes);
   if (lo <= 3 && hi >= 15) return 'one side nearly empty while the other is not — a page that did not render';

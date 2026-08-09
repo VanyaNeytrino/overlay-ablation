@@ -99,26 +99,26 @@ two measurements is what the widget does to the page.
 
 Comparing a store against itself removes the selection problem entirely.
 
-The ablation covers **56 distinct stores**: 16 German, 20 international, 20 fresh. The
-last two samples were measured twice, so 56 stores give 96 store-runs. One store in the
-second fresh run lost both of its page pairs to the validity rule and contributes
-nothing, which is why the tables below count **95**.
+The ablation covers **56 distinct stores**: 16 German, 20 international, 20 fresh. Two
+of the three samples were measured twice, and one vendor had to be measured again after
+the host-list bug described below, which is how 56 stores give **92 store-runs**.
 
-| run | sample | page pairs | stores | nodes removed | out of | share | median per store |
-|---|---|---|---|---|---|---|---|
-| German | 16 stores, .de pool | 32 | 16 | 11 | 1,239 | 0.9% | 0.0% |
-| English, run 1 | 20 stores | 39 | 20 | 87 | 2,028 | 4.3% | 0.0% |
-| English, run 2 | the same 20 | 39 | 20 | 102 | 2,028 | 5.0% | 0.0% |
-| Fresh, run 1 | 20 stores never measured before | 39 | 20 | 40 | 1,426 | 2.8% | 0.0% |
-| Fresh, run 2 | the same 20 | 37 | 19 | 18 | 1,299 | 1.4% | 0.0% |
-| **all five** | **3 independent samples** | **186** | **95 store-runs** | **258** | **8,020** | **3.2%** | **0.0%** |
+| run | page pairs | stores | nodes removed | out of | share | median per store |
+|---|---|---|---|---|---|---|
+| German | 14 | 7 | 12 | 468 | 2.6% | 0.0% |
+| English, run 1 | 35 | 18 | 106 | 1,920 | 5.5% | 0.0% |
+| English, run 2 | 35 | 18 | 99 | 1,921 | 5.2% | 0.0% |
+| Fresh, run 1 | 37 | 19 | 41 | 1,343 | 3.1% | 0.0% |
+| Fresh, run 2 | 35 | 18 | 17 | 1,215 | 1.4% | 0.0% |
+| Accessibly, re-measured | 23 | 12 | −3 | 905 | −0.3% | 0.0% |
+| **all six** | **179** | **56** | **272** | **7,772** | **3.5%** | **0.0%** |
 
 Read the last two columns together, because they disagree on purpose:
 
-- **3.2%** is node-weighted. Every violation node counts equally, so a single
+- **3.5%** is node-weighted. Every violation node counts equally, so a single
   large storefront can carry the whole figure.
 - **0.0%** is the median across stores. Every store counts once. It came out at
-  zero in all five runs, across three samples drawn at different times.
+  zero in all six runs, across three samples drawn at different times.
 
 The widgets present in the ablation sample were UserWay (23 stores), accessiBe (15),
 Accessibly (12), EqualWeb (4) and AudioEye (2). **Results are not broken down by
@@ -128,32 +128,30 @@ named product.
 
 Supporting counts:
 
-- per-run share ranges from **0.9% to 5.0%**
-- **52 of 95** store-run observations showed no change at all — 55%
+- per-run share ranges from **−0.3% to 5.5%**
+- **56 of 92** store-run observations showed no change at all — 61%
 - in every run, some stores came out *worse* with the widget enabled than with it
-  blocked (3, 5, 3, 3, 4 stores respectively). Mostly noise: in the English sample 5
-  stores came out worse in run 1 and only 3 of those again in run 2; in the fresh
-  sample 3 in run 1 and 4 in run 2 — 5 distinct stores, only 2 of them both times
-- **3 pairs of 189** were discarded as invalid renders, 1.6%, all three in the
-  fresh sample. The chain from top to bottom: **192** pairs attempted (56 stores ×
-  2 pages, two of the three samples measured twice), **3** lost when one side hit the
-  40 s navigation timeout, **189** measured, **3** discarded by the rule, **186**
-  analysed
+  blocked (1, 3, 2, 2, 4, 2 stores respectively). Mostly noise: across the two English
+  runs 3 different stores came out worse and only 2 did so both times; across the two
+  fresh runs, 4 different stores and again only 2 both times
+- the selection chain, so the denominator can be reconstructed: **192** pairs attempted
+  in the five original runs, **3** lost to a 40 s navigation timeout, **3** discarded by
+  the render rules, **30** excluded because the block never engaged for one vendor,
+  **+23** re-measured with the host list corrected, **179** analysed
 
-Run-to-run reproducibility, measured on the samples that were run twice and after the
-invalid pairs were excluded: **18 of 20** stores in the English sample and **17 of 19**
-in the fresh one landed within three violation nodes of their first result, and the
-direction of change agreed for 15 of 20 and 15 of 19 respectively. **No store was ever
-dropped for failing to reproduce.** The broken-render rule is the only exclusion
-applied anywhere in this study.
+Run-to-run reproducibility, measured on the samples that were run twice: **17 of 18**
+stores in the English sample and **16 of 18** in the fresh one landed within three
+violation nodes of their first result, and the direction of change agreed for 14 of 18
+and 15 of 18 respectively. **No store was ever dropped for failing to reproduce** —
+the only exclusions are the render rules and the vendor whose script was never blocked.
 
 Per-run and per-store figures: [`data/ablation-by-run.csv`](data/ablation-by-run.csv),
 [`data/ablation-by-store-anonymised.csv`](data/ablation-by-store-anonymised.csv).
 
 ### What was thrown away, and why
 
-Two failure modes were found while checking these runs. Both are easy to hit and
-both push the result in the flattering direction, so they are worth naming.
+Three failure modes were found while checking these runs. All three are easy to hit and
+all three push the result in the flattering direction, so they are worth naming.
 
 **Lazy loading.** Two measurements of one storefront at different settle delays, 5 s
 and 20 s, gave 46 violation nodes and 21 — a 54% drop that looked like the widget
@@ -171,9 +169,27 @@ contributed +98 nodes to a run whose total was +116 — that one broken render w
 most of the run. `aggregate.mjs` now drops a pair when one side has ≤ 3 violation
 nodes while the other has ≥ 15, or when the two sides disagree about whether the
 page had a `<title>` at all. The thresholds were written down before checking which
-stores they would remove. They remove 3 pairs of 189.
+stores they would remove. They remove 4 pairs across the whole study.
 
-Neither failure mode was invented for this write-up; both were found by re-running
+**A vendor that was never switched off.** The OFF side aborts requests whose URL
+contains one of the hosts in `OVERLAY_HOSTS`. That list read `accessiblyapp.com`;
+Accessibly serves from `cdn.accessibly.app`. The substring never matched, so across
+every run that vendor's script loaded on both sides and 30 pairs counted as ablations
+were the same page measured twice.
+
+Nothing looked wrong, which is the point. Those pairs produced small differences around
+zero — the study's own conclusion — so the bug was holding the result up rather than
+knocking it down.
+
+Two corrections came out of it. The 30 pairs are excluded and those 12 stores were
+re-measured with the list fixed; properly switched off, that vendor removes −3 nodes
+across 23 pairs. And `widgetInDom` was retired as a validity signal: it is
+vendor-dependent, because Accessibly's trigger button is rendered into the page by the
+Shopify app and stays there whether or not the script loads. What settles the question
+is the request log, now recorded as `vendorHits` on both sides and enforced in
+`aggregate.mjs`.
+
+None of the three was invented for this write-up; all three were found by re-running
 measurements that had already been recorded as results.
 
 ---
