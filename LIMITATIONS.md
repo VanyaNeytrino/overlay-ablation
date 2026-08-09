@@ -57,8 +57,10 @@ one vendor was never switched off at all for the first five runs because its rea
 was not in the list. That is now checked per pair rather than assumed, but the class of
 error is worth naming, because it fails silently and in the flattering direction.
 
-**The German contour is very small.** Most of the German ablation sample ran the vendor
-above, so excluding the unblocked pairs cut it from 16 stores to 7. Treat that row as
+**The German contour is very small.** Three different German store counts appear in
+these files and they chain: 17 of the 233 surveyed German stores had an overlay
+installed, 16 of those went into the ablation, and 9 of those 16 ran the vendor whose
+script was never blocked — so excluding the unblocked pairs leaves 7. Treat that row as
 an indication, not a country-level result.
 
 **Small samples.** 92 store-run observations, 179 page pairs, three samples. The
