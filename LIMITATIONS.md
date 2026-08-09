@@ -52,10 +52,17 @@ be useful to a person.** These numbers cannot be used to say a product does not 
 **Blocking a CDN is not identical to uninstalling.** Aborting requests to the
 overlay's host is the closest thing to a controlled off-switch that can be done from
 the outside, but a page could in principle behave differently when a script fails to
-load than when it was never there.
+load than when it was never there. And the block only works if the host list is right:
+one vendor was never switched off at all for the first five runs because its real CDN
+was not in the list. That is now checked per pair rather than assumed, but the class of
+error is worth naming, because it fails silently and in the flattering direction.
 
-**Small samples.** 95 store-run observations, 186 page pairs, three samples. The
-per-run share ranges from 0.9% to 5.0% — that spread is the honest measure of how
+**The German contour is very small.** Most of the German ablation sample ran the vendor
+above, so excluding the unblocked pairs cut it from 16 stores to 7. Treat that row as
+an indication, not a country-level result.
+
+**Small samples.** 92 store-run observations, 179 page pairs, three samples. The
+per-run share ranges from −0.3% to 5.5% — that spread is the honest measure of how
 much a single run can move, and it is why the headline is a median across stores
 rather than any one run's total.
 
